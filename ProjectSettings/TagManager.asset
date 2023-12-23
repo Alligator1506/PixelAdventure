@@ -6,6 +6,7 @@ TagManager:
   tags:
   - items
   - trap
+  - EnemyWall
   layers:
   - Default
   - TransparentFX

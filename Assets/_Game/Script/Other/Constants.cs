@@ -15,4 +15,6 @@ public class Constants
 
     public const string TAG_ITEMS = "items";
     public const string TAG_TRAP = "trap";
+
+    public const string TAG_ENEMYWALL = "EnemyWall";
 }

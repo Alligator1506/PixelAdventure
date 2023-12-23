@@ -6,14 +6,12 @@ using Unity.Burst.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Player : MonoBehaviour
+public class Player : Character
 {
-    [SerializeField] private Animator anim;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private TextMeshProUGUI pointText;
 
-    private string currentAnimName;
     private float horizontal;
     private bool isGrounded = true;
 
@@ -41,6 +39,26 @@ public class Player : MonoBehaviour
         isWallDectected = CheckWall();    
     }
 
+    public override void OnInit()
+    {
+        base.OnInit();
+        ChangeAnim("idle");
+
+    }
+
+    public override void OnDespawn()
+    {
+        base.OnDespawn();
+        OnInit();
+    }
+
+    public override void OnDeath()
+    {
+        base.OnDeath();
+        ChangeAnim("death");
+        Invoke(nameof(OnDespawn), 2f);
+    }
+
     private void FixedUpdate()
     {
         if (isGrounded)
@@ -54,7 +72,7 @@ public class Player : MonoBehaviour
         if (Mathf.Abs(horizontal) > 0.1f)
         {
             rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
-            transform.rotation = Quaternion.Euler(new Vector3(0, horizontal > 0 ? 0 : 180, 0));
+            TF.rotation = Quaternion.Euler(new Vector3(0, horizontal > 0 ? 0 : 180, 0));
         }
         else if (isGrounded)
         {
@@ -133,16 +151,6 @@ public class Player : MonoBehaviour
         Gizmos.DrawLine(wallCheck.position, new Vector3(wallCheck.position.x + wallCheckDistance, wallCheck.position.y, wallCheck.position.z));
     }
 
-    protected void ChangeAnim(string animName)
-    {
-        if (currentAnimName != animName)
-        {
-            anim.ResetTrigger(animName);
-            currentAnimName = animName;
-            anim.SetTrigger(currentAnimName);
-        }
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag(Constants.TAG_ITEMS)) {
@@ -158,6 +166,7 @@ public class Player : MonoBehaviour
         if (collision.collider.CompareTag(Constants.TAG_TRAP))
         {
             ChangeAnim("death");
+            OnDeath();
         }
     }
 
